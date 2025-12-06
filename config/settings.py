@@ -21,23 +21,20 @@ DEBUG = os.getenv("DEBUG", "False") == "True"
 # -----------------------
 
 # Always start safe
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+# ----------------------
+# ALLOWED HOSTS (production safe)
+# ----------------------
 
 env_hosts = os.getenv("ALLOWED_HOSTS")
 
-if env_hosts:
-    env_hosts = env_hosts.strip()
+if env_hosts and env_hosts.strip():
+    ALLOWED_HOSTS = [h.strip() for h in env_hosts.split(",") if h.strip()]
+else:
+    ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
-    # Handle Render + comma-separated values
-    if "," in env_hosts:
-        ALLOWED_HOSTS += [h.strip() for h in env_hosts.split(",") if h.strip()]
-    else:
-        ALLOWED_HOSTS.append(env_hosts)
-
-# Failsafe during deploy (prevents Render crash if env not injected yet)
+# Absolute fallback (prevents broken deploys)
 if not ALLOWED_HOSTS:
     ALLOWED_HOSTS = ["*"]
-
 
 # -----------------------
 # APPLICATIONS
